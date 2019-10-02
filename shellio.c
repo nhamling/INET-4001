@@ -14,7 +14,7 @@
 #define clear() printf("\033[H\033[J")
 
 void main() {
-
+	printf("working");
 }
 
 //Function that provides a display at the start of the shell.
@@ -120,7 +120,8 @@ int bICmd(char** parsed) {
 	return 0;
 }
 
-void parse(char* str, char** parsed) {
+//Parses command words
+void parseCmd(char* str, char** parsed) {
 	for(int i = 0; i < MAXLIST; i++) {
 		parsed[i] = strsep(&str, " ");
 		if(parsed[i] == NULL)
@@ -130,7 +131,38 @@ void parse(char* str, char** parsed) {
 	}
 }
 
+//finds pipe
+int parsepipe(char* str, char** pipedstr) {
+	for(int i = 0; i < 2; i++) {
+		pipedstr[i] = strsep(&str, "|");
+		if(pipedstr[i] == NULL)
+			break;
+	}
+	//pipe not found
+	if(pipedstr[1] == NULL)
+		return 0;
+	else
+		return 1;
+}
 
+//Function to process string
+int processStr(char* str, char** parsed, char** ppipe) {
+	char* strpiped[2];
+	int piped = 0;
+	piped = parsepipe(str, strpiped);
+
+	if (piped) {
+		parseCmd(strpiped[0], parsed);
+		parseCmd(strpiped[1], ppipe);
+	}
+	else {
+		parseCmd(str, parsed);
+	}
+	if (bICmd(parsed))
+		return 0;
+	else
+		return 1 + piped;
+}
 
 
 
